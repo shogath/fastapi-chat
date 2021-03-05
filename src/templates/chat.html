@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ChatApp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/chat_style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function scroll() {
+            $('#messages').stop().animate({
+                scrollTop: $('#messages')[0].scrollHeight
+            }, 100);
+        }
+        function print_message(current_user, data) {
+            var parent = $("#messages");
+            if (data) {
+                var time = data['time'];
+                var sender = data['sender'];
+                if (sender == current_user)
+                    sender = "You";
+                var message = data['message']
+                var content = "<p><i>" + time + " | </i><strong>" + sender + ": </strong> <span> " + message + "</span></p>";
+                parent.append(content);
+                scroll();
+            }
+        }
+        $(document).ready(function () {
+            var current_user;
+            $.get("/users/me", function (response) {
+                current_user = response;
+                $("#profile").text("Connected as: " + current_user);
+            });
+            var history;
+            $.get("/history", function (response) {
+                history = response;
+                history.forEach(function (item, index) {
+                    print_message(current_user, item['data']);
+                });
+            });
+            var host = window.location.host;
+            // create websocket
+            var socket = new WebSocket("ws://" + host + "/api/chat");
+            document.getElementById("message_input").focus();
+            socket.onmessage = function (event) {
+                print_message(current_user, JSON.parse(event.data));
+            };
+            $("#chat-form").on("submit", function (e) {
+                e.preventDefault();
+                var message = $("input").val();
+                var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (message) {
+                    data = {
+                        "time": time,
+                        "sender": current_user,
+                        "message": message
+                    };
+                    socket.send(JSON.stringify(data));
+                    $("input").val("");
+                    document.getElementById("message_input").focus();
+                }
+            });
+        });
+    </script>
+</head>
+
+<body class="body">
+    <div class="chat-body card">
+        <div class="card-body">
+            <strong id="profile"></strong>
+            <h4 class="card-title text-center"> FastApi Chat </h4>
+            <strong id="logout"><a href="/logout">Logout</a></strong>
+            <hr>
+            <div id="messages">
+            </div>
+            <form class="form-inline" id="chat-form">
+                <input type="text" class="form-control" placeholder="Write your message" id="message_input">
+                <button id="send" type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

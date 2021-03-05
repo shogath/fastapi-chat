@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="/static/login_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css"
+        integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body class="body">
+
+    <div class="login-page">
+        <div class="form">
+            <div id="label">Sign Up</div>
+            <form id="signup_form" action="/auth/signup">
+                <input required type="text" id="username" name="username" placeholder="&#xf007;  username" />
+                <input required type="password" id="password" name="password" placeholder="&#xf023;  password" />
+                <i class="fas fa-eye" onclick="show()"></i>
+                <br>
+                <br>
+                <button type="submit">SIGN UP</button>
+                <p class="message"></p>
+            </form>
+            <br /><br />
+            <form class="login-form">
+                <button type="button" onclick="window.location.href='/'">BACK TO LOGIN</button>
+            </form>
+            <div id="resp"></div>
+        </div>
+    </div>
+
+    <script>
+        $("#signup_form").submit(function (e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function (data, textStatus, xhr) {
+                    if (xhr.status == 200) {
+                        window.location = '/';
+                    }
+                },
+                complete: function (xhr, textStatus) {
+                    if (xhr.status == 409) {
+                        $("#resp").html("Username already taken");
+                    }
+                }
+            });
+        });
+        function show() {
+            var password = document.getElementById("password");
+            var icon = document.querySelector(".fas")
+
+            // ========== Checking type of password ===========
+            if (password.type === "password") {
+                password.type = "text";
+            }
+            else {
+                password.type = "password";
+            }
+        };
+    </script>
+</body>
+
+</html>
