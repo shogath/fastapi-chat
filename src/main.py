@@ -1,7 +1,7 @@
 import jwt
 import secrets
 from passlib.hash import bcrypt
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import (
     FastAPI, WebSocket, WebSocketDisconnect, Request,
@@ -72,9 +72,10 @@ async def login(data: OAuth2PasswordRequestForm = Depends()):
     elif not user.verify_password(password):
         raise InvalidCredentialsException
 
-    # Generate access token for the user
+    # Generate access token for the user and set expiration time to 2 hours
     access_token = manager.create_access_token(
-        data={"sub": username}
+        data={"sub": username},
+        expires=timedelta(hours=2)
     )
     resp = RedirectResponse(url="/chat", status_code=status.HTTP_302_FOUND)
 

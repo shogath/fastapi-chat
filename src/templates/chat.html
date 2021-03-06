@@ -19,7 +19,7 @@
                 var time = data['time'];
                 var sender = data['sender'];
                 if (sender == current_user)
-                    sender = "You";
+                    sender = "<span style='color:blue;'>You</span>";
                 var message = data['message']
                 var content = "<p><i>" + time + " | </i><strong>" + sender + ": </strong> <span> " + message + "</span></p>";
                 parent.append(content);
