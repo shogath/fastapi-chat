@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import WebSocket
 
 # Helper class for managing websocket connection and broadcasting messages
